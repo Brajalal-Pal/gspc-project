@@ -2,10 +2,11 @@ import Axios from 'axios';
 import React, { Component } from 'react';
 import { TableView } from "./components/TableView";
 import { CardView } from "./components/CardView";
+//import Pagination from "./components/Pagination";
 
 const ToggleView = (props) => {
    if (props.view === "table") {
-      return <TableView {...props} />
+      return <TableView limit="15" />
    } else {
       return <CardView {...props} />
    }
@@ -16,14 +17,19 @@ class App extends Component {
       super(props);
       this.state = {
          data: [],
-         view: "card"
+         view: "card",
+         currentPage: 1,
+         limit: 5,
+         totalPages: 0
       }
    }
    componentDidMount() {
-      Axios.get("http://localhost:5000/gspc")
+      Axios.get(`http://localhost:5000/gspc?page=${this.state.currentPage}&limit=${this.state.limit}`)
          .then(resp => {
             this.setState({
-               data: resp.data
+               data: resp.data.results,
+               totalPages: resp.data.totalPages,
+               currentPage: resp.data.currentPage
             });
          });
    }
@@ -44,6 +50,7 @@ class App extends Component {
             <br /><br />
             <h1>Historical Data</h1>
             <ToggleView data={this.state.data} view={this.state.view} />
+
          </div>
       );
    }

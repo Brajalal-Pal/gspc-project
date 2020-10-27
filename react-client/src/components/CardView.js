@@ -12,7 +12,7 @@ export const CardView = (props) => {
 
          <div className="card-body">
             <h5 className="card-title">Date: {moment(item.Date).format('ll')}</h5>
-            <p className="card-text">
+            <div className="card-text">
                {/* Open: {item.Open}, High: {item.High}, Low: {item.Close} */}
                <div style={{ display: "inline-block", width: "25%" }}>
                   Open:<br />
@@ -30,7 +30,7 @@ export const CardView = (props) => {
                   Close:<br />
                   <NumberFormat value={item.Close} displayType={'text'} thousandSeparator={true} prefix={'$'} />
                </div>
-            </p>
+            </div>
          </div>
          {/* <div className="card-footer text-muted">
 

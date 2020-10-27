@@ -1,9 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import NumberFormat from 'react-number-format';
 import moment from "moment";
+import Axios from 'axios';
 
-export const TableView = (props) => {
-   console.log(props);
+export const TableView = ({ limit }) => {
+   let [currentPageNo, setCurrentPageNo] = useState(1);
+   //let [totalPages, setTotalPages] = useState(1);
+   let [data, setData] = useState([]);
+
+   useEffect(() => {
+      Axios.get(`http://localhost:5000/gspc?page=${currentPageNo}&limit=${limit}`)
+         .then(resp => {
+            setCurrentPageNo(resp.data.currentPage);
+            setData(resp.data.results);
+            //setTotalPages(resp.data.totalPages);            
+         });
+   }, [currentPageNo, limit]);
 
    return (
       <table className="table table-bordered table-hover">
@@ -14,7 +26,7 @@ export const TableView = (props) => {
          </thead>
          <tbody>
             {
-               props && props.data && props.data.map && props.data.map((item, i) => {
+               data && data.map && data.map((item, i) => {
                   return (<tr key={item.Volume}>
                      <td>
                         {moment(item.Date).format('ll')}

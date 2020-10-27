@@ -1,23 +1,42 @@
 const CSVToJSON = require("csvtojson");
 const JSONToCSV = require("json2csv").parse;
 const FileSystem = require("fs");
+const { endianness } = require("os");
 const path = require("path");
 
 let fileURL = path.join(path.dirname(process.mainModule.filename), "data", "GSPC.csv");
 
 exports.getGspcCSVToJSONData = (req, res, next) => {
-   // FileSystem.readFile(fileURL, "utf8", (err, data) => {
-   //    if (!err) {
-   //       console.log("File access successful");
-   //    } else {
-   //       console.log(err);
-   //    }
-   // });
+   let page = parseInt(req.query.page);
+   let limit = parseInt(req.query.limit);
+   if (!page) page = 1;
+   if (!limit) limit = 10;
+
+   const startIndex = (page - 1) * limit;
+   const endIndex = page * limit;
 
    CSVToJSON().fromFile(fileURL)
       .then(source => {
-         //console.log(source);
-         return res.json(source);
+
+         const results = {};
+         if (endIndex < source.length) {
+            results.next = {
+               page: page + 1,
+               limit: limit
+            };
+         }
+
+         if (startIndex > 0) {
+            results.previous = {
+               page: page - 1,
+               limit: limit
+            }
+         }
+         results.totalPages = Math.ceil(source.length / limit);
+         results.currentPage = page;
+         results.results = source.slice(startIndex, endIndex);
+
+         return res.json(results);
       })
       .catch(err => {
          console.log("Error: ", err);
